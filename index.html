@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master & Titans | Elite E-Sports Management</title>
+    <link rel="icon" href="logo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- HORIZONTAL SCROLL FOR TEAMS --- */
+        .scroll-row {
+            display: flex;
+            gap: 30px;
+            overflow-x: auto;
+            padding-bottom: 20px; /* Space for the scrollbar */
+            scroll-snap-type: x mandatory; /* Makes scrolling snap to the cards */
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) #111;
+        }
+
+        /* Custom Webkit Scrollbar */
+        .scroll-row::-webkit-scrollbar {
+            height: 8px;
+        }
+        .scroll-row::-webkit-scrollbar-track {
+            background: #111;
+            border-radius: 10px;
+        }
+        .scroll-row::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+        :root {
+            /* Black, White, and Blue Theme */
+            --primary: #0066ff; /* Deep Blue */
+            --secondary: #ffffff; /* White */
+            --bg: #000000; /* Deep Black */
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.15);
+            --grad: linear-gradient(135deg, var(--primary), #0033cc);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); 
+            color: #fff; 
+            font-family: 'Poppins', sans-serif; 
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 0%, #0a1128, #000000);
+        }
+
+        h1, h2, h3, .logo { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* --- LOADER --- */
+        #loader {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.3s ease; 
+        }
+        .spinner {
+            width: 60px; height: 60px; border: 5px solid var(--border);
+            border-top: 5px solid var(--primary); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- NAVIGATION --- */
+        nav {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            padding: 15px 5%; display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .logo-box { display: flex; align-items: center; gap: 15px; }
+        .logo-img { height: 45px; border-radius: 5px; border: 1px solid var(--primary); }
+        .logo { font-size: 1.2rem; }
+
+        .top-nav { display: flex; gap: 25px; align-items: center; }
+        .nav-link { color: #fff; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem; transition: 0.3s; }
+        .nav-link:hover { color: var(--primary); }
+
+        @media (max-width: 768px) {
+            .top-nav { display: none; } /* Hide text links on mobile, rely on sidebar */
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            position: fixed; left: 0; top: 0; height: 100vh; width: 300px;
+            background: rgba(0,0,0,0.95); border-right: 1px solid var(--border);
+            padding: 100px 20px; transform: translateX(-100%); transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); z-index: 999;
+            overflow-y: auto;
+        }
+        .sidebar.active { transform: translateX(0); }
+        .sidebar-item { padding: 15px; display: flex; align-items: center; gap: 15px; color: #ccc; text-decoration: none; border-radius: 10px; transition: 0.3s; }
+        .sidebar-item:hover { background: var(--glass); color: var(--primary); padding-left: 25px; }
+        .sidebar-promo { margin-top: 30px; border-radius: 15px; overflow: hidden; border: 2px solid var(--primary); box-shadow: 0 0 15px rgba(0, 102, 255, 0.3); }
+        .sidebar-promo img { width: 100%; display: block; transition: transform 0.3s;}
+        .sidebar-promo:hover img { transform: scale(1.05); }
+
+        /* --- HERO & CAROUSEL --- */
+        .hero { 
+            height: 85vh; 
+            display: flex; align-items: center; justify-content: center; 
+            text-align: center; padding: 0 5%; position: relative; 
+            overflow: hidden;
+        }
+        .hero-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            opacity: 0; transition: opacity 1.5s ease-in-out; z-index: 0;
+        }
+        .hero-bg.active { opacity: 1; }
+        .hero-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); z-index: 1; /* Darkens images so text is readable */
+        }
+        .hero-content { position: relative; z-index: 2; }
+        
+        .hero h1 { font-size: 4rem; margin-bottom: 10px; line-height: 1.2; text-shadow: 0 0 20px rgba(0, 102, 255, 0.5); }
+        .hero h2 { font-size: 1.5rem; color: #aaa; margin-bottom: 30px; }
+
+        .btn { padding: 12px 30px; border-radius: 5px; border: 1px solid transparent; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; }
+        .btn-play { background: transparent; color: #fff; border: 1px solid var(--primary); display: inline-flex; align-items: center; gap: 10px; }
+        .btn-play:hover { background: var(--primary); box-shadow: 0 0 15px var(--primary); }
+        .btn-main { background: var(--grad); color: #fff; border-radius: 50px; }
+        .btn-main:hover { box-shadow: 0 0 20px rgba(0, 102, 255, 0.6); }
+
+        /* --- GRID & CARDS --- */
+        .section { padding: 80px 5%; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
+        .card { background: var(--glass); border: 1px solid var(--border); border-radius: 15px; overflow: hidden; transition: 0.4s; position: relative;}
+        .card:hover { border-color: var(--primary); transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0, 102, 255, 0.2); }
+        .card-img { width: 100%; height: 220px; object-fit: cover; border-bottom: 2px solid var(--primary); }
+        .card-content { padding: 25px; text-align: center; }
+
+        /* --- CREW SECTION --- */
+        .crew-img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); margin: 0 auto 15px; background: #111; display: block; }
+        .crew-card { background: #080808; border: 1px solid #222; padding: 30px 20px; text-align: center; border-radius: 15px; transition: 0.3s; }
+        .crew-card:hover { border-color: var(--secondary); transform: scale(1.05); }
+
+        /* --- ADMIN DASHBOARD --- */
+        #admin-portal { display: none; padding: 120px 5% 50px; }
+        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .db-card { background: #0a0a0f; border: 1px solid var(--border); padding: 25px; border-radius: 20px; margin-bottom: 20px; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 10px 0; background: #111; border: 1px solid var(--border); color: #fff; border-radius: 5px; }
+        input:focus, textarea:focus { outline: none; border-color: var(--primary); }
+
+        /* --- VIDEO MODAL --- */
+        .video-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; align-items: center; justify-content: center; padding: 5%; backdrop-filter: blur(10px); }
+        .video-box { width: 100%; max-width: 1000px; aspect-ratio: 16/9; background: #000; position: relative; border: 2px solid var(--primary); }
+        .close-video { position: absolute; top: -40px; right: 0; font-size: 2rem; cursor: pointer; color: #fff; transition: 0.3s; }
+        .close-video:hover { color: red; }
+
+        /* --- FOOTER --- */
+        footer { padding: 80px 5% 40px; background: #030303; border-top: 1px solid var(--border); }
+        .footer-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; }
+        .social-link { font-size: 1.5rem; margin-right: 20px; color: #fff; transition: 0.3s; }
+        .social-link:hover { color: var(--primary); transform: translateY(-3px); display: inline-block; }
+
+        #main-site.blur { filter: blur(10px); pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <div class="spinner"></div>
+        <h2 style="color: var(--primary);">INITIALIZING TITANS...</h2>
+    </div>
+
+    <nav>
+        <div class="logo-box" onclick="toggleSidebar()" style="cursor:pointer" title="Menu">
+            <i class="fas fa-bars" style="font-size: 1.5rem; margin-right: 10px;"></i>
+            <img src="logo.PNG" alt="M&T" class="logo-img" onerror="this.src='https://via.placeholder.com/50x50/0066ff/fff?text=M%26T'">
+            <div class="logo">MASTER & <span style="color:var(--primary)">TITANS</span></div>
+        </div>
+        <div class="top-nav">
+            <a href="#home" class="nav-link">Home</a>
+            <a href="#news" class="nav-link">News</a>
+            <a href="#events" class="nav-link">Events</a>
+            <a href="#about" class="nav-link">About Us</a>
+        </div>
+    </nav>
+
+    <div class="sidebar" id="sidebar">
+        <h3>Menu</h3>
+        <div id="sidebar-links" style="margin-top: 20px;">
+            <a href="#home" class="sidebar-item" onclick="toggleSidebar()"><i class="fas fa-home"></i> Home</a>
+            <a href="#news" class="sidebar-item" onclick="toggleSidebar()"><i class="fas fa-newspaper"></i> Latest News</a>
+            <a href="#events" class="sidebar-item" onclick="toggleSidebar()"><i class="fas fa-trophy"></i> Tournaments</a>
+            <a href="#teams" class="sidebar-item" onclick="toggleSidebar()"><i class="fas fa-users"></i> Pro Teams</a>
+            <a href="#crew" class="sidebar-item" onclick="toggleSidebar()"><i class="fas fa-crown"></i> The Crew</a>
+            <a href="#about" class="sidebar-item" onclick="toggleSidebar()"><i class="fas fa-info-circle"></i> About M&T</a>
+        </div>
+        </div>
+
+    <div id="main-site">
+        <section class="hero" id="home">
+            <!-- <div class="hero-bg active" style="background-image: url('bac1.PNG');"></div> -->
+            <div class="hero-bg active" style="background-image: url('bac2.jpeg');"></div>
+            <div class="hero-bg" style="background-image: url('bac3.jpeg');"></div>
+            <div class="hero-bg" style="background-image: url('bac4.jpeg');"></div>
+            <div class="hero-bg" style="background-image: url('bac5.jpeg');"></div>
+            <div class="hero-overlay"></div> 
+            <div class="hero-content">
+                <h2>MASTER AND TITANS ELITE ESPORTS</h2>
+                <h1>RISE AS <span style="color:var(--primary)">MASTERS</span><br>BATTLE LIKE A <span style="color:#fff">TITANS</span></h1>
+                <p style="color: #ccc; margin-bottom: 30px; font-size: 1.1rem; max-width: 600px; margin-left: auto; margin-right: auto;">The ultimate proving ground for professional mobile and PC tactical gaming.</p>
+                <button class="btn btn-play" onclick="playVideo('video.mov')">
+                    <i class="fas fa-play-circle"></i> WATCH TRAILER
+                </button>
+            </div>
+        </section>
+
+        <section class="section" id="news" style="background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border);">
+            <h2 style="margin-bottom: 40px; border-left: 4px solid var(--primary); padding-left: 15px;">Latest News</h2>
+            <div class="grid">
+                <div class="card">
+                    <img src="ffrsl.jpeg" class="card-img" alt="FFRSL News" onerror="this.src='https://via.placeholder.com/600x400/111/fff?text=IMAGE+MISSING'">
+                    <div class="card-content">
+                        <span style="color: var(--primary); font-size: 0.8rem; font-weight: bold;">Free Fire (FFRSL)</span>
+                        <h3 style="margin: 10px 0; font-size: 1.2rem;">FRRE FIRE RISING STARS LEAGUE</h3>
+                        <p style="color: #999; font-size: 0.85rem; margin-bottom: 20px;">The premier main event where emerging talents and top squads battle for the ultimate championship title.</p>
+                        <!-- <button class="btn btn-play" style="width:100%; border-color: #444;" onclick="playVideo('acadmic.pdf')">READ MORE</button> -->
+                    </div>
+                </div>
+
+                <!-- <div class="card">
+                    <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600" class="card-img" alt="News 1">
+                    <div class="card-content">
+                        <span style="color: var(--primary); font-size: 0.8rem; font-weight: bold;">March 23, 2026</span>
+                        <h3 style="margin: 10px 0; font-size: 1.2rem;">Season 7 Registrations Open</h3>
+                        <p style="color: #999; font-size: 0.85rem; margin-bottom: 20px;">Prepare your squads. The ultimate battlegrounds return next month with a larger prize pool.</p>
+                        <button class="btn btn-play" style="width:100%; border-color: #444;">READ MORE</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=600" class="card-img" alt="News 2">
+                    <div class="card-content">
+                        <span style="color: var(--primary); font-size: 0.8rem; font-weight: bold;">March 15, 2026</span>
+                        <h3 style="margin: 10px 0; font-size: 1.2rem;">New Partnership Announced</h3>
+                        <p style="color: #999; font-size: 0.85rem; margin-bottom: 20px;">Master & Titans joins forces with global tech brands to improve latency for our competitive matches.</p>
+                        <button class="btn btn-play" style="width:100%; border-color: #444;">READ MORE</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1552820728-8b83bb6b773f?q=80&w=600" class="card-img" alt="News 3">
+                    <div class="card-content">
+                        <span style="color: var(--primary); font-size: 0.8rem; font-weight: bold;">March 01, 2026</span>
+                        <h3 style="margin: 10px 0; font-size: 1.2rem;">Recap: Winter Clash Finals</h3>
+                        <p style="color: #999; font-size: 0.85rem; margin-bottom: 20px;">Relive the greatest moments and tactical outplays from the latest Winter Clash Grand Finals.</p>
+                        <button class="btn btn-play" style="width:100%; border-color: #444;">READ MORE</button>
+                    </div>
+                </div> -->
+            </div>
+        </section>
+
+        <div class="section" style="padding-bottom: 0; padding-top: 40px;">
+            <div style="display:flex; gap: 15px; max-width: 800px; margin: 0 auto;">
+                <input type="text" id="search" placeholder="Search M&T events..." onkeyup="filter()">
+                <select id="gameFilter" onchange="filter()" style="width: 250px; cursor: pointer;">
+                    <option value="all">All Games</option>
+                </select>
+            </div>
+        </div>
+
+        <section class="section" id="events">
+            <h2 style="margin-bottom: 40px; border-left: 4px solid var(--primary); padding-left: 15px;">Active Events</h2>
+            <div class="grid" id="eventGrid"></div>
+        </section>
+
+        <section class="section" id="teams" style="background: rgba(255,255,255,0.02); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+            <h2 style="text-align: center; margin-bottom: 50px;">Partnered Teams</h2>
+            <div class="scroll-row" id="teamGrid"></div>
+        </section>
+        <section class="section" id="crew">
+            <h2 style="text-align: center; margin-bottom: 50px;">Meet The M&T Crew</h2>
+            <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;">
+                <div class="crew-card">
+                    <img src="ben.PNG" class="crew-img" onerror="this.src='https://via.placeholder.com/120/000/fff?text=BEN'">
+                    <h3 style="font-size: 1.1rem;">Ben</h3>
+                    <p style="color: var(--primary); font-weight: bold; font-size: 0.8rem; margin-top: 5px;">CEO / Founder</p>
+                </div>
+                <div class="crew-card">
+                    <img src="ASSISTANT.jpeg" class="crew-img" onerror="this.src='https://via.placeholder.com/120/000/fff?text=AST'">
+                    <h3 style="font-size: 1.1rem;">IYON</h3>
+                    <p style="color: var(--primary); font-weight: bold; font-size: 0.8rem; margin-top: 5px;">Assistant CEO</p>
+                </div>
+                <div class="crew-card">
+                    <img src="Treasurer.JPG.jpeg" class="crew-img">
+                    <h3 style="font-size: 1.1rem;">NAASIF </h3>
+                    <p style="color: var(--primary); font-weight: bold; font-size: 0.8rem; margin-top: 5px;">Treasurer</p>
+                </div>
+                <div class="crew-card">
+                    <img src="eventco.JPG.jpeg" class="crew-img">
+                    <h3 style="font-size: 1.1rem;">DINETH DESHAN </h3>
+                    <p style="color: var(--primary); font-weight: bold; font-size: 0.8rem; margin-top: 5px;">EVENT coordinate</p>
+                </div>
+                <div class="crew-card">
+                    <img src="MEDIA MARKETING.jpeg" class="crew-img">
+                    <h3 style="font-size: 1.1rem;">KRISHANI </h3>
+                    <p style="color: var(--primary); font-weight: bold; font-size: 0.8rem; margin-top: 5px;">MEDIA MARKETING</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="about" style="background: linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(0, 102, 255, 0.08) 100%);">
+            <div style="max-width: 900px; margin: 0 auto; text-align: center;">
+                <h2 style="font-size: 2.5rem; margin-bottom: 20px;">About <span style="color: var(--primary)">Master & Titans</span></h2>
+                <div style="width: 100px; height: 4px; background: var(--primary); margin: 0 auto 30px;"></div>
+                <p id="aboutText" style="margin-top: 25px; line-height: 2; color: #ccc; font-size: 1.1rem;">
+                    This name suggests excellence "Masters" and strength/competitiveness "Titans", making it ideal for a professional gaming team or organization.
+                </p>
+                <div style="display: flex; justify-content: center; gap: 30px; margin-top: 40px; flex-wrap: wrap;">
+                    <div style="background: #111; padding: 20px; border-radius: 10px; border: 1px solid var(--border); width: 250px;">
+                        <h3 style="color: var(--primary); font-size: 2rem;">50+</h3>
+                        <p style="color: #888; font-size: 0.9rem; margin-top: 5px;">Tournaments Hosted</p>
+                    </div>
+                    <div style="background: #111; padding: 20px; border-radius: 10px; border: 1px solid var(--border); width: 250px;">
+                        <h3 style="color: var(--primary); font-size: 2rem;">2K+</h3>
+                        <p style="color: #888; font-size: 0.9rem; margin-top: 5px;">Active Players</p>
+                    </div>
+                    <div style="background: #111; padding: 20px; border-radius: 10px; border: 1px solid var(--border); width: 250px;">
+                        <h3 style="color: var(--primary); font-size: 2rem;">Top 12</h3>
+                        <p style="color: #888; font-size: 0.9rem; margin-top: 5px;">E-Sports Orgs in Region</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer id="contact">
+            <div class="footer-cols">
+                <div>
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom: 15px;">
+                        <img src="logo.PNG" alt="M&T" style="height:40px;" onerror="this.style.display='none'">
+                        <h3 class="logo">MASTER & TITANS</h3>
+                    </div>
+                    <p style="color: #666; margin-top: 10px;">&copy; 2026 M&T. All Rights Reserved.</p>
+                </div>
+                <div>
+                    <h4>Direct Contact</h4>
+                    <p style="margin-top: 15px; color: #ccc;">
+                        <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.2rem; margin-right: 8px;"></i> 
+                        <a href="https://wa.me/940766947220" style="color: #fff; text-decoration: none; font-weight: bold;">+94 076 694 7220</a> <br>
+                        <span style="font-size: 0.8rem; color: #888; margin-left: 30px;">(CEO: Ben)</span>
+                    </p>
+                    <p style="margin-top: 10px; color: #ccc;"><i class="fas fa-envelope" style="margin-right: 8px; color: var(--primary);"></i> Mntofficial.2023@gmail.com</p>
+                </div>
+                <div>
+                    <h4>Follow Us</h4>
+                    <div style="margin-top: 15px;">
+                        <a href="https://discord.gg/TY7RNMSzX" target="_blank" class="social-link"><i class="fab fa-discord"></i></a>
+                        <a href="https://www.facebook.com/share/1ADZQFDVma/" target="_blank" class="social-link"><i class="fab fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/masters_titans_2023?igsh=dXhwNHcxNmR4cGdt" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="https://youtube.com/@ben_live_official?si=Zsz2PYdSxETuQ_U0" target="_blank" class="social-link"><i class="fab fa-youtube"></i></a>
+                        <a href="https://www.tiktok.com/@mt_official2023?_r=1&_t=ZS-94tzrSiRCi7" target="_blank" class="social-link"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <div class="video-modal" id="loginModal">
+        <div class="db-card" style="width: 350px; text-align: center; border: 1px solid var(--primary);">
+            <h2>M&T Admin</h2>
+            <input type="text" id="u" placeholder="Username">
+            <input type="password" id="p" placeholder="Password">
+            <button class="btn btn-main" style="width:100%; margin-top:15px" onclick="login()">AUTHORIZE</button>
+            <p style="margin-top: 15px; cursor:pointer; color: #777;" onclick="closeLogin()">Cancel</p>
+        </div>
+    </div>
+
+    <div class="video-modal" id="videoModal">
+        <div class="video-box">
+            <span class="close-video" onclick="closeVideo()">&times;</span>
+            <iframe id="vidFrame" width="100%" height="100%" src="" frameborder="0" allowfullscreen style="display:none;"></iframe>
+            <video id="htmlVideo" width="100%" height="100%" controls style="display:none; background: #000;"></video>
+        </div>
+    </div>
+
+    <script>
+        // --- LOADER LOGIC (ULTRA FAST + FAILSAFE) ---
+        function hideLoader() {
+            const loader = document.getElementById('loader');
+            if (loader && loader.style.display !== 'none') {
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 300);
+            }
+        }
+        document.addEventListener("DOMContentLoaded", hideLoader);
+        setTimeout(hideLoader, 1500);
+
+        // --- CAROUSEL LOGIC ---
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.hero-bg');
+        if (slides.length > 0) {
+            setInterval(() => {
+                slides[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides[currentSlide].classList.add('active');
+            }, 4000); // Changes image every 4 seconds
+        }
+
+        // --- DATABASE EMULATION ---
+        const app = {
+            events: JSON.parse(localStorage.getItem('mt_ev_v2')) || [
+                { id: 1, name: 'ACADEMIC SERIES', game: 'Free Fire (FFRSL)', img: 'event1.JPEG', vid: 'acadmic.pdf', desc: 'FFRSL Sub-Event: Academic Series Official Tournament.', visible: true },
+                { id: 2, name: 'CS LEAGUE STAGE', game: 'Free Fire (FFRSL)', img: 'event2.JPEG', vid: 'cs.pdf', desc: 'FFRSL Sub-Event: CS League Stage Group Clashes.', visible: true },
+                
+                // { id: 3, name: 'Valorant Masters', game: 'Valorant', img: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600', vid: '', desc: '5v5 Tactical PC Shooter Championships.', visible: true },
+            ],
+            teams: JSON.parse(localStorage.getItem('mt_tm_v2')) || [
+                { id: 1, name: 'MRX E-SPORT', logo: 'mrx.JPEG' },
+                { id: 2, name: 'APS E-SPORT', logo: 'aps.jpeg' },
+                { id: 3, name: 'AXONIC', logo: 'ax.jpeg' },
+                { id: 4, name: 'ECLIPSE E-SPORT', logo: 'ee.jpeg' },
+                { id: 5, name: 'FUTA E-SPORT', logo: 'futa.png' },
+                { id: 6, name: 'GZ E-SPORT', logo: 'gz.PNG' },
+                { id: 7, name: 'MIRACLE 7', logo: 'm7.JPEG' },
+                { id: 8, name: 'MORTAN KOMBAT', logo: 'mk.jpeg' },
+                { id: 9, name: 'PRIME E-SPORT', logo: 'prime.jpeg' },
+                { id: 10, name: 'VISION IS WELL', logo: 'viw.JPEG' },
+                { id: 11, name: 'X CODE GAMING', logo: 'xcod.jpeg' },
+                // { id: 12, name: '', logo: 'https://via.placeholder.com/100/111/fff?text=MX' },
+                // { id: 13, name: '', logo: 'https://via.placeholder.com/100/111/fff?text=MX' }
+
+
+            ],
+            sidebarImg: localStorage.getItem('mt_side_v2') || 'ffrsl.jpeg',
+            games: ['Free Fire (FFRSL)', 'Valorant', 'Call of Duty: Mobile', 'Clash of Clans', 'PUBG','Mobile Legends', 'Clash of Royal'],
+
+            save: () => {
+                localStorage.setItem('mt_ev_v2', JSON.stringify(app.events));
+                localStorage.setItem('mt_tm_v2', JSON.stringify(app.teams));
+                localStorage.setItem('mt_side_v2', app.sidebarImg);
+                render();
+            }
+        };
+
+        function render() {
+            const eGrid = document.getElementById('eventGrid');
+            eGrid.innerHTML = '';
+            app.events.forEach(ev => {
+                if(ev.visible) {
+                    let fallbackImg = 'https://via.placeholder.com/400x220/111/fff?text=IMAGE+MISSING';
+                    eGrid.innerHTML += `
+                        <div class="card" data-game="${ev.game}">
+                            <img src="${ev.img}" class="card-img" onerror="this.src='${fallbackImg}'">
+                            <div class="card-content">
+                                <span style="display:inline-block; padding:3px 10px; background:var(--glass); border: 1px solid var(--primary); border-radius: 20px; color:#fff; font-size: 0.7rem; font-weight: bold; margin-bottom: 10px;">${ev.game}</span>
+                                <h3 style="margin: 5px 0 10px 0; font-size: 1.2rem;">${ev.name}</h3>
+                                <p style="color: #999; font-size: 0.85rem; margin-bottom: 20px; line-height: 1.5;">${ev.desc}</p>
+                                <button class="btn btn-play" style="width:100%" onclick="playVideo('${ev.vid}')">WATCH INFO</button>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            // const tGrid = document.getElementById('teamGrid');
+            // tGrid.innerHTML = '';
+            // app.teams.forEach(t => {
+            //     tGrid.innerHTML += `
+            //         <div class="card" style="text-align:center; padding: 30px; border: 1px solid #222;">
+            //             <img src="${t.logo}" style="width: 90px; height: 90px; border-radius: 50%; margin-bottom: 15px; border: 2px solid var(--primary); object-fit:cover;">
+            //             <h4 style="font-size: 1.1rem; letter-spacing: 1px;">${t.name}</h4>
+            //         </div>
+            //     `;
+            // });
+            const tGrid = document.getElementById('teamGrid');
+            tGrid.innerHTML = '';
+            app.teams.forEach(t => {
+                tGrid.innerHTML += `
+                    <div class="card" style="flex: 0 0 auto; width: 220px; text-align:center; padding: 30px; border: 1px solid #222; scroll-snap-align: start;">
+                        <img src="${t.logo}" style="width: 90px; height: 90px; border-radius: 50%; margin-bottom: 15px; border: 2px solid var(--primary); object-fit:cover;">
+                        <h4 style="font-size: 1.1rem; letter-spacing: 1px;">${t.name}</h4>
+                    </div>
+                `;
+            });
+            const filter = document.getElementById('gameFilter');
+            filter.innerHTML = '<option value="all">All Games</option>';
+            app.games.forEach(g => filter.innerHTML += `<option value="${g}">${g}</option>`);
+            document.getElementById('sidebar-ad').innerHTML = `<img src="${app.sidebarImg}" onerror="this.src='https://via.placeholder.com/400x600/111/fff?text=IMAGE+ERROR'">`;
+        }
+
+        // --- SYSTEM FUNCTIONS ---
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
+        function openLogin() { document.getElementById('loginModal').style.display = 'flex'; }
+        function closeLogin() { document.getElementById('loginModal').style.display = 'none'; }
+        
+        function login() {
+            const user = document.getElementById('u').value;
+            const pass = document.getElementById('p').value;
+            if(user === "admin" && pass === "123") {
+                document.getElementById('main-site').style.display = 'none';
+                document.getElementById('admin-portal').style.display = 'block';
+                closeLogin();
+            } else { alert("Error: Access Denied"); }
+        }
+
+        // UPDATED VIDEO LOGIC TO HANDLE BOTH .MOV FILES AND YOUTUBE LINKS
+        function playVideo(url) {
+            if(!url) return alert("No info linked to this specific event yet.");
+            
+            // Check if the link is a PDF document
+            if(url.toLowerCase().endsWith('.pdf')) {
+                window.open(url, '_blank'); // Opens the PDF safely in a new tab
+                return;
+            }
+
+            const iframe = document.getElementById('vidFrame');
+            const htmlVideo = document.getElementById('htmlVideo');
+            const urlLower = url.toLowerCase();
+
+            // If it's a direct video file (like .mov or .mp4)
+            if(urlLower.endsWith('.mov') || urlLower.endsWith('.mp4') || urlLower.endsWith('.webm')) {
+                iframe.style.display = 'none';
+                iframe.src = '';
+                
+                htmlVideo.style.display = 'block';
+                htmlVideo.src = url;
+                htmlVideo.play(); // Auto-play the video
+            } 
+            // Otherwise, it's a YouTube link or other embed
+            else {
+                htmlVideo.style.display = 'none';
+                htmlVideo.pause();
+                htmlVideo.src = '';
+
+                iframe.style.display = 'block';
+                iframe.src = url;
+            }
+
+            document.getElementById('videoModal').style.display = 'flex';
+        }
+
+        // UPDATED TO CLOSE BOTH IFRAME AND HTML VIDEO
+        function closeVideo() {
+            document.getElementById('vidFrame').src = "";
+            const htmlVideo = document.getElementById('htmlVideo');
+            htmlVideo.pause();
+            htmlVideo.src = "";
+            
+            document.getElementById('videoModal').style.display = 'none';
+        }
+
+        function filter() {
+            const q = document.getElementById('search').value.toLowerCase();
+            const f = document.getElementById('gameFilter').value;
+            document.querySelectorAll('#eventGrid .card').forEach(c => {
+                const title = c.querySelector('h3').innerText.toLowerCase();
+                const game = c.getAttribute('data-game');
+                c.style.display = (title.includes(q) && (f === 'all' || f === game)) ? 'block' : 'none';
+            });
+        }
+
+        // Security: Block F12 and Right Click (TEMPORARILY DISABLED PER REQUEST)
+        /*
+        document.onkeydown = (e) => {
+            if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) {
+                alert("Master & Titans Security System Protected.");
+                return false;
+            }
+        };
+        */
+
+        render();
+    </script>
+</body>
+</html>
