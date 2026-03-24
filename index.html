@@ -197,7 +197,6 @@
 
     <div id="main-site">
         <section class="hero" id="home">
-            <!-- <div class="hero-bg active" style="background-image: url('bac1.PNG');"></div> -->
             <div class="hero-bg active" style="background-image: url('bac2.jpeg');"></div>
             <div class="hero-bg" style="background-image: url('bac3.jpeg');"></div>
             <div class="hero-bg" style="background-image: url('bac4.jpeg');"></div>
@@ -222,37 +221,8 @@
                         <span style="color: var(--primary); font-size: 0.8rem; font-weight: bold;">Free Fire (FFRSL)</span>
                         <h3 style="margin: 10px 0; font-size: 1.2rem;">FRRE FIRE RISING STARS LEAGUE</h3>
                         <p style="color: #999; font-size: 0.85rem; margin-bottom: 20px;">The premier main event where emerging talents and top squads battle for the ultimate championship title.</p>
-                        <!-- <button class="btn btn-play" style="width:100%; border-color: #444;" onclick="playVideo('acadmic.pdf')">READ MORE</button> -->
                     </div>
                 </div>
-
-                <!-- <div class="card">
-                    <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600" class="card-img" alt="News 1">
-                    <div class="card-content">
-                        <span style="color: var(--primary); font-size: 0.8rem; font-weight: bold;">March 23, 2026</span>
-                        <h3 style="margin: 10px 0; font-size: 1.2rem;">Season 7 Registrations Open</h3>
-                        <p style="color: #999; font-size: 0.85rem; margin-bottom: 20px;">Prepare your squads. The ultimate battlegrounds return next month with a larger prize pool.</p>
-                        <button class="btn btn-play" style="width:100%; border-color: #444;">READ MORE</button>
-                    </div>
-                </div>
-                <div class="card">
-                    <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=600" class="card-img" alt="News 2">
-                    <div class="card-content">
-                        <span style="color: var(--primary); font-size: 0.8rem; font-weight: bold;">March 15, 2026</span>
-                        <h3 style="margin: 10px 0; font-size: 1.2rem;">New Partnership Announced</h3>
-                        <p style="color: #999; font-size: 0.85rem; margin-bottom: 20px;">Master & Titans joins forces with global tech brands to improve latency for our competitive matches.</p>
-                        <button class="btn btn-play" style="width:100%; border-color: #444;">READ MORE</button>
-                    </div>
-                </div>
-                <div class="card">
-                    <img src="https://images.unsplash.com/photo-1552820728-8b83bb6b773f?q=80&w=600" class="card-img" alt="News 3">
-                    <div class="card-content">
-                        <span style="color: var(--primary); font-size: 0.8rem; font-weight: bold;">March 01, 2026</span>
-                        <h3 style="margin: 10px 0; font-size: 1.2rem;">Recap: Winter Clash Finals</h3>
-                        <p style="color: #999; font-size: 0.85rem; margin-bottom: 20px;">Relive the greatest moments and tactical outplays from the latest Winter Clash Grand Finals.</p>
-                        <button class="btn btn-play" style="width:100%; border-color: #444;">READ MORE</button>
-                    </div>
-                </div> -->
             </div>
         </section>
 
@@ -399,7 +369,7 @@
                 slides[currentSlide].classList.remove('active');
                 currentSlide = (currentSlide + 1) % slides.length;
                 slides[currentSlide].classList.add('active');
-            }, 4000); // Changes image every 4 seconds
+            }, 4000); 
         }
 
         // --- DATABASE EMULATION ---
@@ -407,8 +377,6 @@
             events: JSON.parse(localStorage.getItem('mt_ev_v2')) || [
                 { id: 1, name: 'ACADEMIC SERIES', game: 'Free Fire (FFRSL)', img: 'event1.JPEG', vid: 'acadmic.pdf', desc: 'FFRSL Sub-Event: Academic Series Official Tournament.', visible: true },
                 { id: 2, name: 'CS LEAGUE STAGE', game: 'Free Fire (FFRSL)', img: 'event2.JPEG', vid: 'cs.pdf', desc: 'FFRSL Sub-Event: CS League Stage Group Clashes.', visible: true },
-                
-                // { id: 3, name: 'Valorant Masters', game: 'Valorant', img: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600', vid: '', desc: '5v5 Tactical PC Shooter Championships.', visible: true },
             ],
             teams: JSON.parse(localStorage.getItem('mt_tm_v2')) || [
                 { id: 1, name: 'MRX E-SPORT', logo: 'mrx.JPEG' },
@@ -421,11 +389,7 @@
                 { id: 8, name: 'MORTAN KOMBAT', logo: 'mk.jpeg' },
                 { id: 9, name: 'PRIME E-SPORT', logo: 'prime.jpeg' },
                 { id: 10, name: 'VISION IS WELL', logo: 'viw.JPEG' },
-                { id: 11, name: 'X CODE GAMING', logo: 'xcod.jpeg' },
-                // { id: 12, name: '', logo: 'https://via.placeholder.com/100/111/fff?text=MX' },
-                // { id: 13, name: '', logo: 'https://via.placeholder.com/100/111/fff?text=MX' }
-
-
+                { id: 11, name: 'X CODE GAMING', logo: 'xcod.jpeg' }
             ],
             sidebarImg: localStorage.getItem('mt_side_v2') || 'ffrsl.jpeg',
             games: ['Free Fire (FFRSL)', 'Valorant', 'Call of Duty: Mobile', 'Clash of Clans', 'PUBG','Mobile Legends', 'Clash of Royal'],
@@ -458,16 +422,6 @@
                 }
             });
 
-            // const tGrid = document.getElementById('teamGrid');
-            // tGrid.innerHTML = '';
-            // app.teams.forEach(t => {
-            //     tGrid.innerHTML += `
-            //         <div class="card" style="text-align:center; padding: 30px; border: 1px solid #222;">
-            //             <img src="${t.logo}" style="width: 90px; height: 90px; border-radius: 50%; margin-bottom: 15px; border: 2px solid var(--primary); object-fit:cover;">
-            //             <h4 style="font-size: 1.1rem; letter-spacing: 1px;">${t.name}</h4>
-            //         </div>
-            //     `;
-            // });
             const tGrid = document.getElementById('teamGrid');
             tGrid.innerHTML = '';
             app.teams.forEach(t => {
@@ -478,10 +432,16 @@
                     </div>
                 `;
             });
+
             const filter = document.getElementById('gameFilter');
             filter.innerHTML = '<option value="all">All Games</option>';
             app.games.forEach(g => filter.innerHTML += `<option value="${g}">${g}</option>`);
-            document.getElementById('sidebar-ad').innerHTML = `<img src="${app.sidebarImg}" onerror="this.src='https://via.placeholder.com/400x600/111/fff?text=IMAGE+ERROR'">`;
+            
+            // FIX: Ensure the element exists before trying to modify it
+            const sidebarAd = document.getElementById('sidebar-ad');
+            if (sidebarAd) {
+                sidebarAd.innerHTML = `<img src="${app.sidebarImg}" onerror="this.src='https://via.placeholder.com/400x600/111/fff?text=IMAGE+ERROR'">`;
+            }
         }
 
         // --- SYSTEM FUNCTIONS ---
@@ -505,7 +465,7 @@
             
             // Check if the link is a PDF document
             if(url.toLowerCase().endsWith('.pdf')) {
-                window.open(url, '_blank'); // Opens the PDF safely in a new tab
+                window.open(url, '_blank'); 
                 return;
             }
 
@@ -520,12 +480,15 @@
                 
                 htmlVideo.style.display = 'block';
                 htmlVideo.src = url;
-                htmlVideo.play(); // Auto-play the video
+                htmlVideo.play().catch(e => console.log("Video auto-play prevented.")); 
             } 
             // Otherwise, it's a YouTube link or other embed
             else {
                 htmlVideo.style.display = 'none';
-                htmlVideo.pause();
+                // FIX: Catch AbortError when switching rapidly
+                if (!htmlVideo.paused) {
+                    htmlVideo.pause();
+                }
                 htmlVideo.src = '';
 
                 iframe.style.display = 'block';
@@ -539,7 +502,11 @@
         function closeVideo() {
             document.getElementById('vidFrame').src = "";
             const htmlVideo = document.getElementById('htmlVideo');
-            htmlVideo.pause();
+            
+            // FIX: Prevent AbortError when closing before playback starts fully
+            if (!htmlVideo.paused) {
+                htmlVideo.pause();
+            }
             htmlVideo.src = "";
             
             document.getElementById('videoModal').style.display = 'none';
@@ -554,16 +521,6 @@
                 c.style.display = (title.includes(q) && (f === 'all' || f === game)) ? 'block' : 'none';
             });
         }
-
-        // Security: Block F12 and Right Click (TEMPORARILY DISABLED PER REQUEST)
-        /*
-        document.onkeydown = (e) => {
-            if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) {
-                alert("Master & Titans Security System Protected.");
-                return false;
-            }
-        };
-        */
 
         render();
     </script>
